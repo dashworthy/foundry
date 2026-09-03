@@ -49,3 +49,12 @@ it('propagates the precondition\'s own exception unchanged, unwrapped', function
 it('does not throw when every precondition passes', function () {
     (new FixtureAction([new StubPrecondition]))->assert(new FixtureActionData);
 })->throwsNoExceptions();
+
+it('make throws when the container returns a foreign type', function () {
+    // A rogue binding makes the container hand back something that is not the
+    // action. make()'s guard must reject it rather than pass it on.
+    $this->app->instance(FixtureAction::class, new stdClass);
+
+    expect(fn (): FixtureAction => FixtureAction::make())
+        ->toThrow(RuntimeException::class, 'which is not an instance of it.');
+});

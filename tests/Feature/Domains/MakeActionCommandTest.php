@@ -34,7 +34,7 @@ it('creates an action and its data inside a domain', function () {
 });
 
 it('follows a remapped data folder name in the generated use statement', function () {
-    config()->set('domains.subdirectories.data', 'DTOs');
+    config()->set('foundry.domains.subdirectories.data', 'DTOs');
     $this->app->forgetInstance(DomainNamespace::class);
 
     $this->artisan('make:action', ['name' => 'CreateUser', '--domain' => 'Auth', '--subdomain' => 'User'])
@@ -50,7 +50,7 @@ it('follows a remapped data folder name in the generated use statement', functio
 });
 
 it('follows a remapped action folder name without crashing', function () {
-    config()->set('domains.subdirectories.action', 'UseCases');
+    config()->set('foundry.domains.subdirectories.action', 'UseCases');
     $this->app->forgetInstance(DomainNamespace::class);
 
     $this->artisan('make:action', ['name' => 'CreateUser', '--domain' => 'Auth', '--subdomain' => 'User'])

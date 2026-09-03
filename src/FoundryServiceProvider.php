@@ -36,7 +36,7 @@ class FoundryServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../config/domains.php', 'domains');
+        $this->mergeConfigFrom(__DIR__.'/../config/foundry.php', 'foundry');
 
         // Bound by class name so boot() can swap in the domain-aware subclasses
         // with $this->app->extend(), the same way it replaces Laravel's core
@@ -47,11 +47,11 @@ class FoundryServiceProvider extends ServiceProvider
         $this->app->singleton(MakePreconditionCommand::class);
 
         $this->app->singleton(DomainNamespace::class, function (): DomainNamespace {
-            $base = config('domains.base', 'Domains');
+            $base = config('foundry.domains.base', 'Domains');
 
             return new DomainNamespace(
                 base: is_string($base) ? $base : 'Domains',
-                subdirectories: $this->stringMap(config('domains.subdirectories', [])),
+                subdirectories: $this->stringMap(config('foundry.domains.subdirectories', [])),
             );
         });
     }
@@ -98,8 +98,8 @@ class FoundryServiceProvider extends ServiceProvider
         ]);
 
         $this->publishes([
-            __DIR__.'/../config/domains.php' => config_path('domains.php'),
-        ], 'domains-config');
+            __DIR__.'/../config/foundry.php' => config_path('foundry.php'),
+        ], 'foundry-config');
 
         foreach ($this->commandOverrides() as $core => $override) {
             if ($this->app->bound($core)) {

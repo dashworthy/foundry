@@ -83,6 +83,15 @@ it('make resolves an instance from the container', function () {
     expect(FixtureQuery::make())->toBeInstanceOf(FixtureQuery::class);
 });
 
+it('make throws when the container returns a foreign type', function () {
+    // A rogue binding makes the container hand back something that is not the
+    // query. make()'s guard must reject it rather than pass it on.
+    $this->app->instance(FixtureQuery::class, new stdClass);
+
+    expect(fn (): FixtureQuery => FixtureQuery::make())
+        ->toThrow(RuntimeException::class, 'which is not an instance of it.');
+});
+
 it('fake replaces the query in the container and can stub handle', function () {
     Widget::create(['name' => 'stubbed']);
 

@@ -46,7 +46,7 @@ it('fails with a clean error when domain is provided without subdomain non-inter
 });
 
 it('honors a runtime config override of a folder name', function () {
-    config()->set('domains.subdirectories.request', 'Requests');
+    config()->set('foundry.domains.subdirectories.request', 'Requests');
     $this->app->forgetInstance(DomainNamespace::class);
 
     $this->artisan('make:request', ['name' => 'OverrideReq', '--domain' => 'Billing', '--subdomain' => 'Invoice'])
