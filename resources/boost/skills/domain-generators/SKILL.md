@@ -51,12 +51,12 @@ scaffolds is placed in the same domain's `Data/` folder.
 
 ## Folder names
 
-Folder names come from `config/domains.php` `subdirectories` (e.g. `request` →
+Folder names come from `config/foundry.php` `domains.subdirectories` (e.g. `request` →
 `FormRequests`, `resource` → `JsonResources`). An unmapped or custom generator falls back
 to the pluralized command type. Publish the config to customise it:
 
 ```bash
-php artisan vendor:publish --tag=domains-config
+php artisan vendor:publish --tag=foundry-config
 ```
 
 ## Opting a custom command in
