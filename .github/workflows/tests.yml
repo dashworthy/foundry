@@ -42,7 +42,9 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: dom, curl, libxml, mbstring, zip, fileinfo, sqlite, pdo_sqlite, bcmath, intl
-          ini-values: error_reporting=E_ALL
+          # variables_order includes E so $_ENV is populated: the type-coverage
+          # step reads $_ENV['__PEST_PLUGIN_ENV'] to run single-process.
+          ini-values: error_reporting=E_ALL, variables_order=EGPCS
           tools: composer:v2
           coverage: none
 
@@ -61,6 +63,12 @@ jobs:
       - name: Type Coverage
         if: runner.os != 'Windows'
         run: composer test:types
+        # Force pest-plugin-type-coverage to run single-process. Its parallel
+        # fork runtime (nunomaduro/pokio) intermittently corrupts the temp file
+        # it serializes results through, crashing on a random matrix leg with a
+        # ParseError. Type coverage is fast, so sync mode costs nothing.
+        env:
+          __PEST_PLUGIN_ENV: 1
 
       - name: Test Suite
         if: runner.os != 'Windows'
