@@ -44,15 +44,11 @@ use Throwable;
 abstract class Action
 {
     /**
-     * Whether execute() wraps handle() in a database transaction. `null` means
-     * "not set", which execute() resolves to the transactional baseline; a call
-     * site drops the transaction by setting it `false` with withoutTransaction().
-     *
-     * The baseline lives in execute() as an executed `?? true`, not as a property
-     * default, so a mutation flipping it is exercised by a test — a `true`
-     * default on the declaration line is never marked covered.
+     * Whether execute() wraps handle() in a database transaction. A transaction
+     * is the baseline for every action; a call site drops it with
+     * withoutTransaction().
      */
-    private ?bool $withinTransaction = null;
+    private bool $withinTransaction = true;
 
     /**
      * Resolve this action from the container.
@@ -236,11 +232,9 @@ abstract class Action
     {
         $this->assert($data);
 
-        $withinTransaction = $this->withinTransaction ?? true;
-
         try {
             /** @var TReturn $returned */
-            $returned = $withinTransaction
+            $returned = $this->withinTransaction
                 ? DB::transaction(fn (): mixed => $this->handle($data))
                 : $this->handle($data);
         } catch (Throwable $e) {
