@@ -1,0 +1,22 @@
+<?php
+
+namespace {{ namespace }};
+
+use Closure;
+use Dashworthy\Foundry\Data\Data;
+use Dashworthy\Foundry\Preconditions\Precondition;
+
+final class {{ class }} implements Precondition
+{
+    /**
+     * Check one rule before the action or query runs. Narrow the base `Data`
+     * with an `instanceof` — or a contract your application layers onto its own
+     * Data classes — when this precondition needs a specific shape.
+     *
+     * Call `$next($data)` to let the chain continue; throw to refuse.
+     */
+    public function handle(Data $data, Closure $next): mixed
+    {
+        return $next($data);
+    }
+}

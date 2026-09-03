@@ -1,0 +1,35 @@
+<?php
+
+namespace {{ namespace }};
+
+use Dashworthy\Foundry\Actions\Action;
+use {{ dataNamespace }}\{{ class }}Data;
+
+/**
+ * Not `final`: subclassing or mocking in tests needs to reach in without
+ * fighting the class declaration.
+ *
+ * @extends Action<{{ class }}Data, null>
+ */
+class {{ class }} extends Action
+{
+    /**
+     * Preconditions in evaluation order. Cheap and authorization checks first.
+     *
+     * @return list<\Dashworthy\Foundry\Preconditions\Precondition|class-string<\Dashworthy\Foundry\Preconditions\Precondition>>
+     */
+    protected function preconditions(): array
+    {
+        return [];
+    }
+
+    /**
+     * Do the work. Narrow `mixed` to whatever this action returns and update
+     * the second `@extends Action<...>` type argument above to match — PHPStan
+     * reads the return type from that annotation, not from this signature.
+     */
+    protected function handle({{ class }}Data $data): mixed
+    {
+        return null;
+    }
+}

@@ -1,0 +1,42 @@
+<?php
+
+namespace {{ namespace }};
+
+use Dashworthy\Foundry\Queries\Query;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
+use {{ dataNamespace }}\{{ class }}Data;
+
+/**
+ * Not `final`: subclassing or mocking in tests needs to reach in without
+ * fighting the class declaration.
+ *
+ * @extends Query<{{ class }}Data, Model>
+ */
+class {{ class }} extends Query
+{
+    /**
+     * Preconditions in evaluation order. Cheap and authorization checks first.
+     *
+     * @return list<\Dashworthy\Foundry\Preconditions\Precondition|class-string<\Dashworthy\Foundry\Preconditions\Precondition>>
+     */
+    protected function preconditions(): array
+    {
+        return [];
+    }
+
+    /**
+     * Build the read and return the Eloquent query builder — do not run it. The
+     * Query base class runs `->get()` and returns the rows as a `Collection`.
+     *
+     * Replace `Model` with the model you are reading and update the second
+     * `@extends Query<...>` type argument above to match, so the returned
+     * `Collection` is typed to that model.
+     *
+     * @return Builder<Model>
+     */
+    protected function handle({{ class }}Data $data): Builder
+    {
+        return Model::query();
+    }
+}

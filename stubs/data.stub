@@ -1,0 +1,10 @@
+<?php
+
+namespace {{ namespace }};
+
+use Dashworthy\Foundry\Data\Data;
+
+final readonly class {{ class }} extends Data
+{
+    //
+}
