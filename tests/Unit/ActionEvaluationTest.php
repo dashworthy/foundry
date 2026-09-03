@@ -58,3 +58,17 @@ it('make throws when the container returns a foreign type', function () {
     expect(fn (): FixtureAction => FixtureAction::make())
         ->toThrow(RuntimeException::class, 'which is not an instance of it.');
 });
+
+it('turns the gate off with withoutPreconditions(), so no precondition is evaluated', function () {
+    $refusal = new StubPrecondition(new RuntimeException('Refused by fixture.'));
+
+    (new FixtureAction([$refusal]))->withoutPreconditions()->assert(new FixtureActionData);
+
+    expect($refusal->evaluations)->toBe(0);
+});
+
+it('reports permits() true once withoutPreconditions() has turned the gate off', function () {
+    $refusing = new FixtureAction([new StubPrecondition(new RuntimeException('Refused by fixture.'))]);
+
+    expect($refusing->withoutPreconditions()->permits(new FixtureActionData))->toBeTrue();
+});

@@ -4,22 +4,23 @@ declare(strict_types=1);
 
 namespace Dashworthy\Foundry\Actions;
 
-use Closure;
+use Dashworthy\Foundry\Concerns\EvaluatesPreconditions;
+use Dashworthy\Foundry\Concerns\InteractsWithContainer;
 use Dashworthy\Foundry\Data\Data;
-use Dashworthy\Foundry\Preconditions\Precondition;
 use Dashworthy\Foundry\Queries\Query;
-use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Pipeline;
-use Mockery;
-use Mockery\MockInterface;
-use RuntimeException;
 use Throwable;
 
 /**
  * A write expressed as one class: it takes exactly one {@see Data} object, runs
  * its preconditions, does the work inside a database transaction, and returns
  * whatever the work produced. Its read-side twin is {@see Query}.
+ *
+ * The container lifecycle (`make()`, `fake()`) and the precondition pipeline
+ * (`preconditions()`, `assert()`, `permits()`, `withoutPreconditions()`) are
+ * identical on both sides and live in {@see InteractsWithContainer} and
+ * {@see EvaluatesPreconditions}. What is unique to the write side stays here:
+ * the transaction, `withoutTransaction()`, and `rollback()`.
  *
  * `handle()` is declared here as `@method` rather than as a real abstract
  * method so a concrete action can typehint its own `{Name}Data` —
@@ -43,142 +44,17 @@ use Throwable;
  */
 abstract class Action
 {
+    /** @use EvaluatesPreconditions<TData> */
+    use EvaluatesPreconditions;
+
+    use InteractsWithContainer;
+
     /**
      * Whether execute() wraps handle() in a database transaction. A transaction
      * is the baseline for every action; a call site drops it with
      * withoutTransaction().
      */
     private bool $withinTransaction = true;
-
-    /**
-     * Resolve this action from the container.
-     *
-     * Sugar over `app(static::class)` for call sites that cannot inject —
-     * a controller method already full of dependencies, a console command, a
-     * closure. Constructor injection remains the better option wherever it is
-     * available; this exists so that reaching for `new` is never the easier
-     * path, since `new` skips the container and any binding pointing at a
-     * decorated or faked instance.
-     *
-     * The `instanceof` guard is not defensive noise: the container is a
-     * rebindable registry, so `App::make()` returns whatever is bound for this
-     * class, which a consumer can point anywhere. Catching that here names the
-     * problem at the call that caused it, rather than as a `TypeError` several
-     * frames later.
-     */
-    public static function make(): static
-    {
-        $action = App::make(static::class);
-
-        if (! $action instanceof static) {
-            throw new RuntimeException(sprintf(
-                'The container returned %s for %s, which is not an instance of it.',
-                get_debug_type($action),
-                static::class,
-            ));
-        }
-
-        return $action;
-    }
-
-    /**
-     * Replace this action in the container with a partial mock.
-     *
-     * `preconditions()` is stubbed to none by default, so a test faking a
-     * collaborator does not have to satisfy that action's authorization rules.
-     * The stub is registered `byDefault()`, so anything the closure declares
-     * replaces it.
-     *
-     * `handle()` is deliberately NOT stubbed by default, though the closure can
-     * stub it — protected-method mocking is enabled for exactly that. There is
-     * no type-safe default: Mockery honours the declared return type, so
-     * stubbing `handle()` to null is a `TypeError` on every action that returns
-     * something non-nullable, and a full mock throws `BadMethodCallException`
-     * on any call it has no expectation for. A test that needs the work
-     * replaced supplies a value of the right type:
-     *
-     *     PublishPost::fake(fn (MockInterface $mock) => $mock
-     *         ->shouldReceive('handle')->once()->andReturn($post));
-     *
-     * The seam is `handle()` and `preconditions()`, never `execute()`.
-     * `execute()` is `final`, so Mockery cannot override it: a
-     * `shouldReceive('execute')` is accepted and then silently ignored while
-     * the real method runs.
-     *
-     * Mockery is a test-time dependency and deliberately not a runtime
-     * `require` of this package, so calling this without it fails with a
-     * sentence rather than an undefined-class error.
-     *
-     * @param  (Closure(MockInterface): mixed)|null  $closure
-     */
-    public static function fake(?Closure $closure = null): MockInterface
-    {
-        if (! class_exists(Mockery::class)) {
-            throw new RuntimeException(sprintf(
-                '%s::fake() needs mockery/mockery, which is a dev dependency. Install it to fake actions in tests.',
-                static::class,
-            ));
-        }
-
-        $mock = Mockery::mock(static::class)
-            ->shouldAllowMockingProtectedMethods()
-            ->makePartial();
-
-        $mock->shouldReceive('preconditions')->andReturn([])->byDefault();
-
-        if ($closure !== null) {
-            $closure($mock);
-        }
-
-        App::instance(static::class, $mock);
-
-        return $mock;
-    }
-
-    /**
-     * Preconditions in evaluation order. Order them cheap first: evaluation
-     * stops at the first that throws, so an authorization check placed ahead
-     * of a state check means an unauthorized actor never learns the state.
-     *
-     * Each pipe is a {@see Precondition} — `handle(Data $data, Closure $next): mixed`.
-     * Return either instantiated pipe objects or class-strings; the Pipeline
-     * resolves class-strings from the container.
-     *
-     * @return list<Precondition|class-string<Precondition>>
-     */
-    protected function preconditions(): array
-    {
-        return [];
-    }
-
-    /**
-     * Runs every precondition in order, stopping at the first that throws.
-     * Whatever exception a precondition throws propagates unchanged — this
-     * package neither wraps nor replaces it.
-     *
-     * @param  TData  $data
-     */
-    public function assert(Data $data): void
-    {
-        Pipeline::send($data)->through($this->preconditions())->thenReturn();
-    }
-
-    /**
-     * Whether this action would be permitted — for deciding if a control
-     * renders, so the UI and the server cannot drift.
-     *
-     * @param  TData  $data
-     */
-    public function permits(Data $data): bool
-    {
-        try {
-            $this->assert($data);
-
-            return true;
-        } catch (Throwable) {
-            return false;
-        }
-    }
 
     /**
      * Skip the database transaction for this one call, then execute as usual:

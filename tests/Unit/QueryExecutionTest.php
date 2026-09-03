@@ -124,3 +124,15 @@ it('fake can stub permits for UI-gate tests', function () {
 
     expect(FixtureQuery::make()->permits(new FixtureQueryData('ok')))->toBeFalse();
 });
+
+it('reads past a refusing precondition when the call opts out with withoutPreconditions()', function () {
+    Widget::create(['name' => 'refuse']);
+
+    $query = new FixtureQuery;
+
+    $result = $query->withoutPreconditions()->get(new FixtureQueryData('refuse'));
+
+    expect($result)->toHaveCount(1)
+        ->and($result->first()->name)->toBe('refuse')
+        ->and($query->handleCalls)->toBe(1);
+});

@@ -95,3 +95,7 @@ Each reference doc carries the full list for its piece. The ones that span all f
 - Do not build a unit with `new` at a call site — use `make()`/`run()` so a bound decorator
   or fake is honoured.
 - Do not declare an `Action` or `Query` `final`; tests need to subclass or mock it.
+- Do not reach for `withoutPreconditions()` in a request flow — it turns off the
+  authorization/state gate, which is a security bug anywhere serving a user. It is for
+  trusted callers only (migrations, seeders, maintenance commands). See
+  `references/preconditions.md`.
