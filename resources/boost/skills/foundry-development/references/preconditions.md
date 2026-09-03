@@ -76,6 +76,21 @@ protected function preconditions(): array
 }
 ```
 
+## Bypassing the gate — `withoutPreconditions()`, avoid it
+
+Both `Action` and `Query` expose `withoutPreconditions()`, which turns the gate off for one
+call (`SomeAction::make()->withoutPreconditions()->execute($data)`) — the mirror of
+`withoutTransaction()`. **Treat it as a red flag, not a convenience.** Preconditions are
+where a unit's authorization and state rules live, so skipping them runs the work for an
+actor the rules would have refused; in a request flow that is a security bug. Once the gate
+is off, `permits()` also reports `true` unconditionally, because there is no rule left to
+refuse.
+
+It exists only for a trusted caller that has already enforced the rules itself — a data
+migration, a seeder, a maintenance command running as no one. If you reach for it in a
+controller, a job, or anything serving a user, the design is wrong: fix the precondition or
+the data instead.
+
 ## Anti-patterns
 
 - Do not do work in a precondition — it is a check. No writes, no side effects, no

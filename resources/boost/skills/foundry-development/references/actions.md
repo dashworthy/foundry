@@ -78,6 +78,14 @@ transaction. The opt-out lives on the call, not the class:
 PublishPost::make()->withoutTransaction()->execute($data);
 ```
 
+## withoutPreconditions() — avoid it
+
+`withoutPreconditions()` turns the precondition gate off for one call, the same shape as
+`withoutTransaction()`. It is not a convenience — skipping the gate runs the work for an
+actor the rules would have refused, which in a request flow is a security bug. Reserve it
+for a trusted caller that has already enforced the rules itself (a migration, a seeder, a
+maintenance command). See `references/preconditions.md`.
+
 ## rollback() — only for non-transactional side effects
 
 The transaction already undoes database writes. Override `rollback()` only to undo a side

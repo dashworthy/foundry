@@ -191,3 +191,16 @@ it('calls rollback whether or not the action is transactional', function () {
     expect(fn () => $action->withoutTransaction()->execute(new FixtureActionData))->toThrow(RuntimeException::class);
     expect($action->rolledBack)->toBe(1);
 });
+
+it('runs handle past a refusing precondition when the call opts out with withoutPreconditions()', function () {
+    $action = new FixtureAction([new StubPrecondition(new RuntimeException('Refused by fixture.'))]);
+
+    expect($action->withoutPreconditions()->execute(new FixtureActionData('done')))->toBe('done');
+    expect($action->handled)->toBe(1);
+});
+
+it('withoutPreconditions() returns the same action for chaining', function () {
+    $action = new FixtureAction;
+
+    expect($action->withoutPreconditions())->toBe($action);
+});

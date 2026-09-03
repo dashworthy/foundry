@@ -64,6 +64,14 @@ $can  = PendingInvitations::make()->permits($data);   // bool — same precondit
 - `run()` is `make()` + `get()`.
 - `get()` is `final` on the base — assert-then-read order cannot be reordered by a subclass.
 
+## withoutPreconditions() — avoid it
+
+`withoutPreconditions()` turns the precondition gate off for one call, the same shape as an
+action's `withoutTransaction()`. It is not a convenience — skipping the gate reads data the
+rules would have refused the actor, which in a request flow is a security bug. Reserve it for
+a trusted caller that has already enforced the rules itself (a migration, a seeder, a
+maintenance command). See `references/preconditions.md`.
+
 ## Faking in tests
 
 `fake()` swaps the query in the container for a partial mock. `preconditions()` is stubbed

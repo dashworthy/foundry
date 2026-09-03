@@ -251,7 +251,7 @@ trait InteractsWithDomains
      */
     protected function domainsBasePath(): string
     {
-        $base = config('domains.base', 'Domains');
+        $base = config('foundry.domains.base', 'Domains');
 
         return app_path(is_string($base) ? $base : 'Domains');
     }

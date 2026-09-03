@@ -2,10 +2,16 @@
 
 declare(strict_types=1);
 
+use Dashworthy\Foundry\Actions\Action;
 use Dashworthy\Foundry\Tests\Fixtures\FixtureActionData;
 use Dashworthy\Foundry\Tests\Fixtures\RefusingAction;
 use Dashworthy\Foundry\Tests\Fixtures\StubPrecondition;
 use Mockery\MockInterface;
+
+// fake() lives on Action, so its mutants are only exercised by the tests that
+// drive fake() — which are these. Without this the fake() branch shows as
+// uncovered under mutation testing.
+mutates(Action::class);
 
 /*
  | fake() stubs preconditions() and lets the closure stub handle(), never
