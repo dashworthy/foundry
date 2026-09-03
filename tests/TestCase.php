@@ -22,7 +22,12 @@ abstract class TestCase extends Orchestra
         // it the `App` root namespace, so `make:action`/`make:query` write
         // `App\Actions\...` into a temp dir the tests can assert on and tearDown
         // can delete — never into the Testbench skeleton.
-        $this->appPath = sys_get_temp_dir().'/dashworthy-foundry-'.uniqid();
+        //
+        // The suffix is random_bytes(), not uniqid(): uniqid() is only the clock
+        // in microseconds, so two parallel workers entering setUp() in the same
+        // microsecond build the same path and the second mkdir() fails with
+        // "File exists". random_bytes() cannot collide across processes.
+        $this->appPath = sys_get_temp_dir().'/dashworthy-foundry-'.bin2hex(random_bytes(8));
         File::ensureDirectoryExists($this->appPath);
         $this->app->useAppPath($this->appPath);
 
