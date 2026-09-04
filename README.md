@@ -6,7 +6,7 @@
     <a href="https://packagist.org/packages/dashworthy/foundry"><img src="https://img.shields.io/packagist/v/dashworthy/foundry.svg?style=flat-square" alt="Packagist"></a>
     <a href="https://packagist.org/packages/dashworthy/foundry"><img src="https://img.shields.io/packagist/php-v/dashworthy/foundry.svg?style=flat-square" alt="PHP from Packagist"></a>
     <a href="https://packagist.org/packages/dashworthy/foundry"><img src="https://badge.laravel.cloud/badge/dashworthy/foundry?style=flat" alt="Laravel versions"></a>
-    <a href="https://github.com/dashworthy/foundry/actions"><img alt="GitHub Workflow Status (main)" src="https://img.shields.io/github/actions/workflow/status/dashworthy/foundry/tests.yml?branch=main&label=Tests&style=flat-square"></a>
+    <a href="https://github.com/dashworthy/foundry/actions"><img alt="GitHub Workflow Status (0.x)" src="https://img.shields.io/github/actions/workflow/status/dashworthy/foundry/tests.yml?branch=0.x&label=Tests&style=flat-square"></a>
     <a href="https://packagist.org/packages/dashworthy/foundry"><img src="https://img.shields.io/packagist/dt/dashworthy/foundry.svg?style=flat-square" alt="Total Downloads"></a>
 </p>
 
