@@ -1,6 +1,4 @@
-<div align="center">
-    <h1>Foundry</h1>
-</div>
+![Foundry](art/banner.svg)
 
 <p align="center">
     <a href="https://packagist.org/packages/dashworthy/foundry"><img src="https://img.shields.io/packagist/v/dashworthy/foundry.svg?style=flat-square" alt="Packagist"></a>
