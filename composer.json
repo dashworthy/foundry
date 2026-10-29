@@ -26,6 +26,7 @@
         "illuminate/support": "^12.0||^13.0"
     },
     "require-dev": {
+        "dashworthy/pest-plugin-arch-rails": "^0.1.0",
         "larastan/larastan": "^3.9",
         "laravel/pao": "^1.0",
         "laravel/pint": "^1.29",

@@ -3,7 +3,11 @@
 declare(strict_types=1);
 
 use Dashworthy\Foundry\Actions\Action;
+use Dashworthy\Foundry\Data\Data;
+use Dashworthy\Foundry\FoundryServiceProvider;
+use Dashworthy\Foundry\Preconditions\Precondition;
 use Dashworthy\Foundry\Queries\Query;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -57,3 +61,35 @@ it('has every action and query declaring the handle() the base class calls', fun
     'actions' => [Action::class],
     'queries' => [Query::class],
 ]);
+
+arch('every source class keeps to an approved directory')
+    ->expect('Dashworthy\Foundry')
+    ->toUseApprovedDirectories(
+        [
+            'Actions' => Action::class,
+            'Concerns',
+            'Console' => Command::class,
+            'Data' => Data::class,
+            'Domains',
+            'Preconditions' => Precondition::class,
+            'Queries' => Query::class,
+        ],
+        beneath: 'Dashworthy\Foundry',
+    )
+    ->ignoring(FoundryServiceProvider::class);
+
+arch('every class is named for the directory it sits in')
+    ->expect('Dashworthy\Foundry')
+    ->toUseDirectorySuffixes(
+        [
+            'Console' => 'Command',
+            'Exceptions' => 'Exception',
+        ],
+        beneath: 'Dashworthy\Foundry',
+    );
+
+arch('every source class has a mirrored test')
+    ->expect('Dashworthy\Foundry')
+    ->toHaveTests([
+        dirname(__DIR__).'/src' => [__DIR__.'/Unit', __DIR__.'/Feature'],
+    ]);

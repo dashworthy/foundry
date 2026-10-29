@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Dashworthy\Foundry\Tests\Unit;
+namespace Dashworthy\Foundry\Tests\Unit\Preconditions;
 
 use Dashworthy\Foundry\Data\Data;
 use Dashworthy\Foundry\Preconditions\Precondition;
